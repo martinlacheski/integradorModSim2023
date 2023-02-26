@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de números aleatorios</title>
+</head>
+<body>
+    <h1>Generador de números aleatorios</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="algoritmo">Selecciona un algoritmo:</label>
+        <select name="algoritmo" id="algoritmo">
+            <option value="fibonacci">Fibonacci</option>
+            <option value="congruencia">Congruencia lineal</option>
+        </select>
+        <br><br>
+        <label for="cantidad">Cantidad de números:</label>
+        <input type="number" name="cantidad" id="cantidad" required>
+        <br><br>
+        <input type="submit" value="Generar">
+    </form>
+
+    {% if numeros %}
+    <h2>Secuencia de números generados:</h2>
+    <ul>
+        {% for numero in numeros %}
+        <li>{{ numero }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</body>
+</html>
