@@ -140,10 +140,10 @@ def res_test_poker(numeros, resultado, confianza):
         
     if valor_chi2 > resultado:
         print(f'{resultado} < {valor_chi2}\n')
-        print('El resultado del test de Poker para Fibonacci + Congruencia Fundamental es VERDADERO\n')
+        print(f'El resultado del test de Poker para Fibonacci + Congruencia Fundamental es VERDADERO para confianza {confianza} y grados de libertad {grados_libertad}\n')
     else:
         print(f'{resultado} > {valor_chi2}\n')
-        print('El resultado del test de Poker para Fibonacci + Congruencia Fundamental es FALSO\n')
+        print('El resultado del test de Poker para Fibonacci + Congruencia Fundamental es FALSO para confianza {confianza} y grados de libertad {grados_libertad}\n')
         
 def test_jicuadrado(numeros):
     x0 = 0
@@ -172,11 +172,11 @@ def res_test_chi(numeros, resultado, confianza):
     
     if (valor_chi2 > resultado ):
         print(f'{resultado} < {valor_chi2}\n')
-        print('El resultado del test de Ji Cuadrado para Fibonacci + Congruencia Fundamental es VERDADERO\n')
+        print(f'El resultado del test de Ji Cuadrado para Fibonacci + Congruencia Fundamental es VERDADERO para confianza {confianza} y grados de libertad {grados_libertad}\n')
         return
     else:
         print(f'{resultado} > {valor_chi2}\n')
-        print('El resultado del test de Ji Cuadrado para Fibonacci + Congruencia Fundamental es FALSO\n')
+        print('El resultado del test de Ji Cuadrado para Fibonacci + Congruencia Fundamental es FALSO para confianza {confianza} y grados de libertad {grados_libertad}\n')
         return
 
 def distribucion_bernoulli(numeros, minimo, maximo):
@@ -215,7 +215,7 @@ def distribucion_normal(numeros):
 
     # Calculamos la media y la desviación estándar
 
-    mu = np.mean(datos)
+    mu = np.mean(numeros)
 
     print(f'la media es: {mu}\n')
 
