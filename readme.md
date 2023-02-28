@@ -1,3 +1,11 @@
+## Trabajo Práctico Integrador - METODO ANALÍTICO
+
+## Cátedra Modelo y Simulacion
+
+## Licenciatura en sistemas de Información - Universidad Nacional de Misiones
+
+### Pasos Previos
+
 Python
 
 - Verificar que tenemos instalado python en nuestro sistema operativo
