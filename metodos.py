@@ -7,6 +7,8 @@ import plotly.graph_objects as go
 import nbformat
 import math
 from scipy.stats import chi2, chisquare
+from scipy.interpolate import interp1d
+from datetime import datetime, timedelta
 
 def fibonacci(v1,v2,K,n):
     if v1 < 0:
@@ -66,8 +68,7 @@ def congruencia_fundamental(numeros_fibonacci, a, c, K_Congruencias, m, n, marca
                     list.append(int(numero_aleatorio))
                     break
         return list
-
-    
+       
 def test_poker(numeros, minimo, maximo):
    
     a = 0
@@ -140,10 +141,10 @@ def res_test_poker(numeros, resultado, confianza):
         
     if valor_chi2 > resultado:
         print(f'{resultado} < {valor_chi2}\n')
-        print(f'El resultado del test de Poker para Fibonacci + Congruencia Fundamental es VERDADERO para confianza {confianza} y grados de libertad {grados_libertad}\n')
+        print(f'El resultado del test de Poker para Fibonacci + Congruencia Fundamental es VERDADERO para {confianza} de confianza y {grados_libertad} grados de libertad \n')
     else:
         print(f'{resultado} > {valor_chi2}\n')
-        print('El resultado del test de Poker para Fibonacci + Congruencia Fundamental es FALSO para confianza {confianza} y grados de libertad {grados_libertad}\n')
+        print(f'El resultado del test de Poker para Fibonacci + Congruencia Fundamental es FALSO para {confianza} de confianza y {grados_libertad} grados de libertad \n')
         
 def test_jicuadrado(numeros):
     x0 = 0
@@ -172,11 +173,11 @@ def res_test_chi(numeros, resultado, confianza):
     
     if (valor_chi2 > resultado ):
         print(f'{resultado} < {valor_chi2}\n')
-        print(f'El resultado del test de Ji Cuadrado para Fibonacci + Congruencia Fundamental es VERDADERO para confianza {confianza} y grados de libertad {grados_libertad}\n')
+        print(f'El resultado del test de Ji Cuadrado para Fibonacci + Congruencia Fundamental es VERDADERO para {confianza} de confianza y {grados_libertad} grados de libertad\n')
         return
     else:
         print(f'{resultado} > {valor_chi2}\n')
-        print('El resultado del test de Ji Cuadrado para Fibonacci + Congruencia Fundamental es FALSO para confianza {confianza} y grados de libertad {grados_libertad}\n')
+        print(f'El resultado del test de Ji Cuadrado para Fibonacci + Congruencia Fundamental es FALSO para {confianza} de confianza y {grados_libertad} grados de libertad\n')
         return
 
 def distribucion_bernoulli(numeros, minimo, maximo):
@@ -284,10 +285,11 @@ def simulacion(muestrasHumedadRelativa, numeros_congruencia, marcas_clase):
     for i in range(num_marcas):
         valores_en_marca = [dato for dato in muestrasHumedadRelativa if limites_inferiores[i] <= dato <= limites_superiores[i]]
         frecuencia_esp = len(valores_en_marca)
+        probabilidad_esp = frecuencia_esp / len(muestrasHumedadRelativa)
         valores_en_marca = [dato for dato in numeros_congruencia if limites_inferiores[i] <= dato <= limites_superiores[i]]
         frecuencia_obs = len(valores_en_marca)
-        probabilidad = frecuencia_esp / len(muestrasHumedadRelativa)
-        print(f"Marca {i+1} - Rango Inferior - Superior: [{round(limites_inferiores[i],2)}, {round(limites_superiores[i],2)}] - Frecuencia Esperada: {frecuencia_esp} - Frecuencia Observada: {frecuencia_obs} - Probabilidad: {round(probabilidad,5)}")
+        probabilidad_obs = frecuencia_obs / len(muestrasHumedadRelativa)
+        print(f"Marca {i+1} - Rango Inferior - Superior: [{round(limites_inferiores[i],2)}, {round(limites_superiores[i],2)}] - Frecuencia Esperada: {frecuencia_esp} - Frecuencia Observada: {frecuencia_obs} - Probabilidad Esperada: {round(probabilidad_esp,5)} - Probabilidad Observada: {round(probabilidad_obs,5)}")
         marcas_clase.append(i+1)
         frecuencia_esperada.append(frecuencia_esp)
         frecuencia_observada.append(frecuencia_obs)
@@ -299,3 +301,62 @@ def simulacion(muestrasHumedadRelativa, numeros_congruencia, marcas_clase):
     plt.legend(['Frecuencia Esperada', 'Frecuencia Observada'])
     plt.show()
     
+def clasificar_numeros(numeros, marcas_clase):
+    clasificacion = []
+    for num in numeros:
+        for i in range(len(marcas_clase)):
+            if num >= marcas_clase[i][0] and num <= marcas_clase[i][1]:
+                clasificacion.append(i+1)
+                break
+    return clasificacion
+
+def curva_array(array_original, array_pseudoaleatorio):    
+    array_final = []
+    for elem in array_pseudoaleatorio:
+        closest_val = None
+        closest_dist = float('inf')
+        for val in array_original:
+            dist = abs(val - elem)
+            if dist < closest_dist:
+                closest_val = val
+                closest_dist = dist
+        array_final.append(closest_val)
+    return array_final
+    
+def generacion_nueva_hum_rel(fecha_inicial, hum_rel_inicial, numeros):
+    humedades = []
+    fecha = datetime.strptime(fecha_inicial, '%Y-%m-%d')
+    for i in range(1, len(numeros)):
+        # Obtenemos la diferencia de la posicion
+        diferencia = int(numeros[i][1])
+        hum = hum_rel_inicial - diferencia 
+        humedades.append((fecha.strftime('%Y-%m-%d'), hum))
+        fecha += timedelta(days=1)
+    return humedades
+
+def calcular_valores_humedad(hum_rel_inicial, valores):
+    resultado = []
+    hum = hum_rel_inicial
+    for diferencia in valores:
+        hum = hum + diferencia
+        resultado.append(hum)
+    return resultado
+
+def calcular_nuevos_valores_humedad(hum_rel_inicial, valores):
+    resultado = []
+    hum = hum_rel_inicial
+    for diferencia in valores:
+        hum = hum + diferencia
+        if hum > 100:
+            hum = 100 - (hum - 100)
+        elif hum < 0:
+            hum = -hum
+        resultado.append(hum)
+    return resultado
+
+def escribir_humedad_relativa_simulada(fecha_inicio, humedadesNvas):
+    fecha = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+    with open("datos_generados_nvas_humedades.txt", "w") as outfile:
+        for humedad in humedadesNvas:
+            outfile.write(str(fecha) + ',' + str(humedad) + '\n')
+            fecha += timedelta(days=1)
